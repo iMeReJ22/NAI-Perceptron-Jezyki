@@ -3,3 +3,6 @@ class ExtendedFile:
         self.filePath = filePath
         self.language = language
         self.vector = vector
+
+    def __str__(self):
+        return self.filePath

@@ -1,4 +1,5 @@
 import os
+import random
 
 from ExtendedFile import ExtendedFile
 from Perceptron import Perceptron
@@ -61,10 +62,19 @@ def getNumberOfALetterInFile(letterInAscii, filePath):
 
 def getExtendedFiles(languages):
     extendedFiles = list()
+    blockLength = 10000000
     for lang in languages:
+        if len(languages[lang]) < blockLength:
+            blockLength = len(languages[lang])
         for filePath in languages[lang]:
             extendedFiles.append(ExtendedFile(filePath, lang, getVectorDataFromFileOrString(filePath, True)))
-    return extendedFiles
+
+    reshuffledExtendedFiles = list()
+    for i in range(blockLength):
+        for j in range(0, len(extendedFiles), blockLength):
+            reshuffledExtendedFiles.append(extendedFiles[i+j])
+
+    return reshuffledExtendedFiles
 
 
 def initAndReturnGuessCounters(extendedFiles):
@@ -80,6 +90,8 @@ def initAndReturnGuessCounters(extendedFiles):
 
 def getAccuracyAndTrainPerceptrons(perceptrons, extendedFiles):
     correctGuesses, guesses = initAndReturnGuessCounters(extendedFiles)
+    # random.shuffle(extendedFiles)
+
     for extendedFile in extendedFiles:
         # print()
         for perceptron in perceptrons:
@@ -111,7 +123,10 @@ def trainNTimes(perceptrons, extendedFiles, n):
 
 
 def userInputLoop(perceptrons, extendedFiles):
+    n = 1
     while True:
+        print(f"\nAge number: {n}.")
+        n += 1
         accuracy = getAccuracyAndTrainPerceptrons(perceptrons, extendedFiles)
         printAccuracy(accuracy)
         if input("Continue training? (y/n)") == "n":
@@ -160,6 +175,7 @@ def checkUserInput(perceptrons):
         if input("Do you want to check another text? (y/n)") == "n":
             break
 
+
 def printPerceptronValues(perceptrons):
     for perceptron in perceptrons:
         perceptron.printInfo()
@@ -185,8 +201,8 @@ def main():
     perceptrons = getPerceptrons(languages)
     extendedFiles = getExtendedFiles(languages)
 
-    # userInputLoop(perceptrons, extendedFiles)
-    trainNTimes(perceptrons, extendedFiles, 20)
+    userInputLoop(perceptrons, extendedFiles)
+    # trainNTimes(perceptrons, extendedFiles, 20)
 
     printPerceptronValues(perceptrons)
 
