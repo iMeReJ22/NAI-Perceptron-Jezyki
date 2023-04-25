@@ -39,6 +39,6 @@ class Perceptron:
         return sum
 
     def printInfo(self):
-        print("current values")
-        print("weights:\t" + self.weights.__str__())
-        print(f"threshold:\t{self.threshold}")
+        print(f"\nCurrent values for {self.name}")
+        print("Weights:\n" + self.weights.__str__())
+        print(f"Threshold:\t{self.threshold}")

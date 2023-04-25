@@ -79,9 +79,9 @@ def getExtendedFiles(languages):
 
 def initAndReturnGuessCounters(extendedFiles):
     correctGuesses = dict()
-    correctGuesses["all"] = 0
+    correctGuesses["All"] = 0
     guesses = dict()
-    guesses["all"] = 0
+    guesses["All"] = 0
     for extendedFile in extendedFiles:
         correctGuesses[extendedFile.language] = 0
         guesses[extendedFile.language] = 0
@@ -105,10 +105,10 @@ def getAccuracyAndTrainPerceptrons(perceptrons, extendedFiles):
                 #     print(f"Didn't guess {name}")
                 perceptron.learn(not answer, answer, extendedFile.vector)
             else:
-                correctGuesses["all"] += 1
+                correctGuesses["All"] += 1
                 if answer:
                     correctGuesses[name] += 1
-            guesses["all"] += 1
+            guesses["All"] += 1
             if name == correctAnswer:
                 guesses[name] += 1
     return getAccuracy(correctGuesses, guesses)
@@ -125,10 +125,11 @@ def trainNTimes(perceptrons, extendedFiles, n):
 def userInputLoop(perceptrons, extendedFiles):
     n = 1
     while True:
-        print(f"\nAge number: {n}.")
-        n += 1
-        accuracy = getAccuracyAndTrainPerceptrons(perceptrons, extendedFiles)
-        printAccuracy(accuracy)
+        for i in range(10):
+            print(f"\nAge number: {n}.")
+            n += 1
+            accuracy = getAccuracyAndTrainPerceptrons(perceptrons, extendedFiles)
+            printAccuracy(accuracy)
         if input("Continue training? (y/n)") == "n":
             break
 
@@ -142,7 +143,7 @@ def getAccuracy(correctGuesses, guesses):
 
 def printAccuracy(accuracy):
     for lang in accuracy:
-        print(f"Accuracy for: {lang}:\n{accuracy[lang]}%")
+        print(f"Accuracy for {lang}:\n{accuracy[lang]}%")
 
 
 def classificate(answers):
