@@ -99,10 +99,6 @@ def getAccuracyAndTrainPerceptrons(perceptrons, extendedFiles):
             answer = perceptron.isActivated(extendedFile.vector)
             correctAnswer = extendedFile.language
             if (not answer and name == correctAnswer) or (answer and name != correctAnswer):
-                # if answer:
-                #     print(f"Wrong guessed: {name} while the file was {extendedFile.language}")
-                # else:
-                #     print(f"Didn't guess {name}")
                 perceptron.learn(not answer, answer, extendedFile.vector)
             else:
                 correctGuesses["All"] += 1
