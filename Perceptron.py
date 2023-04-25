@@ -12,6 +12,11 @@ class Perceptron:
             exit("Wrong vector length.")
         return self.__getSum(vector) >= self.threshold
 
+    def getActivationValue(self, vector):
+        if len(vector) != len(self.weights):
+            exit("Wrong vector length.")
+        return self.__getSum(vector) - self.threshold
+
     def learn(self, expected, recived, vector):
         # (expected - recived) * alfa = X
         # weights[prog] + (expected - recived) * alfa * vector[-1(y)]

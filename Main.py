@@ -7,7 +7,7 @@ from Perceptron import Perceptron
 def getPerceptrons(languages):
     perceptrons = list()
     for language in languages:
-        perceptrons.append(Perceptron(26, 0.2, 1, language, 0.03703703703))
+        perceptrons.append(Perceptron(26, 0.15, 0.2, language, 0.03703703703))
 
     return perceptrons
 
@@ -24,12 +24,14 @@ def getDictOfFiles(dirPath):
 
 
 # gets a vector for a perceptron of a frequency of letters in file
-def getVectorDataFromFile(filePath):
+def getVectorDataFromFileOrString(filePathOrString, fileOrString):
     frequencyOfLetters = list()
     for i in range(65, 91):
-        tmpLetter, tmpAll = getNumberOfALetterInFile(i, filePath)
+        if fileOrString:
+            tmpLetter, tmpAll = getNumberOfALetterInFile(i, filePathOrString)
+        else:
+            tmpLetter, tmpAll = getNumberOfALetterInLine(i, filePathOrString)
         frequencyOfLetters.append(tmpLetter/tmpAll)
-
     return frequencyOfLetters
 
 
@@ -40,7 +42,7 @@ def getNumberOfALetterInLine(letterInAscii, line):
     for c in line:
         if c == chr(letterInAscii):
             countOfLetter += 1
-        countOfAll +=1
+        countOfAll += 1
     return countOfLetter, countOfAll
 
 
@@ -61,7 +63,7 @@ def getExtendedFiles(languages):
     extendedFiles = list()
     for lang in languages:
         for filePath in languages[lang]:
-            extendedFiles.append(ExtendedFile(filePath, lang, getVectorDataFromFile(filePath)))
+            extendedFiles.append(ExtendedFile(filePath, lang, getVectorDataFromFileOrString(filePath, True)))
     return extendedFiles
 
 
@@ -79,29 +81,39 @@ def initAndReturnGuessCounters(extendedFiles):
 def getAccuracyAndTrainPerceptrons(perceptrons, extendedFiles):
     correctGuesses, guesses = initAndReturnGuessCounters(extendedFiles)
     for extendedFile in extendedFiles:
-        print(f"\n\n***{extendedFile.filePath}***")
+        # print()
         for perceptron in perceptrons:
-            print(f"===============Testing for {perceptron.name} perceptron.===============")
             name = perceptron.name
             answer = perceptron.isActivated(extendedFile.vector)
             correctAnswer = extendedFile.language
             if (not answer and name == correctAnswer) or (answer and name != correctAnswer):
-                print("Wrong")
+                # if answer:
+                #     print(f"Wrong guessed: {name} while the file was {extendedFile.language}")
+                # else:
+                #     print(f"Didn't guess {name}")
                 perceptron.learn(not answer, answer, extendedFile.vector)
             else:
-                print("Good")
                 correctGuesses["all"] += 1
-                correctGuesses[name] += 1
+                if answer:
+                    correctGuesses[name] += 1
             guesses["all"] += 1
-            guesses[name] += 1
+            if name == correctAnswer:
+                guesses[name] += 1
     return getAccuracy(correctGuesses, guesses)
+
+
+def trainNTimes(perceptrons, extendedFiles, n):
+    accuracy = dict()
+    for i in range(n):
+        accuracy = getAccuracyAndTrainPerceptrons(perceptrons, extendedFiles)
+
+    printAccuracy(accuracy)
 
 
 def userInputLoop(perceptrons, extendedFiles):
     while True:
         accuracy = getAccuracyAndTrainPerceptrons(perceptrons, extendedFiles)
         printAccuracy(accuracy)
-
         if input("Continue training? (y/n)") == "n":
             break
 
@@ -119,13 +131,53 @@ def printAccuracy(accuracy):
 
 
 def classificate(answers):
-    maxValue = -10
+    maxValue = -1000000
     guess = "I'm not sure."
     for name in answers:
+        print(f"{name}:{answers[name]}")
         if answers[name] > maxValue:
             guess = name
             maxValue = answers[name]
     return guess
+
+
+def checkUserInput(perceptrons):
+    while True:
+        print("Please give me your text to check:")
+        inputToCheck = getMultilineInput()
+        vector = getVectorDataFromFileOrString(inputToCheck, False)
+        print()
+        print()
+
+        answers = dict()
+        for perceptron in perceptrons:
+            answers[perceptron.name] = perceptron.getActivationValue(vector)
+
+        myGuess = classificate(answers)
+
+        print(f"I think this text is written in: {myGuess}")
+
+        if input("Do you want to check another text? (y/n)") == "n":
+            break
+
+def printPerceptronValues(perceptrons):
+    for perceptron in perceptrons:
+        perceptron.printInfo()
+
+
+def getMultilineInput():
+    lines = []
+    go = False
+    while True:
+        line = input()
+        if line:
+            go = False
+            lines.append(line)
+        else:
+            if go:
+                break
+            go = True
+    return "\n".join(lines)
 
 
 def main():
@@ -133,12 +185,12 @@ def main():
     perceptrons = getPerceptrons(languages)
     extendedFiles = getExtendedFiles(languages)
 
-    userInputLoop(perceptrons, extendedFiles)
+    # userInputLoop(perceptrons, extendedFiles)
+    trainNTimes(perceptrons, extendedFiles, 20)
 
-    # for lang in languages:
-    #     for filePath in languages[lang]:
-    #         print(filePath)
-    #         getFileVectorData(filePath)
+    printPerceptronValues(perceptrons)
+
+    checkUserInput(perceptrons)
 
 
 # here
